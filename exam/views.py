@@ -40,3 +40,15 @@ def home(request):
         }
         return render(request,'Quiz/home.html',context)
  
+def addQuestion(request):    
+    if request.user.is_staff:
+        form=AddQuestionform()
+        if(request.method=='POST'):
+            form=AddQuestionform(request.POST)
+            if(form.is_valid()):
+                form.save()
+                return redirect('/')
+        context={'form':form}
+        return render(request,'Quiz/addQuestion.html',context)
+    else: 
+        return redirect('home') 
