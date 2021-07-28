@@ -3,12 +3,12 @@ from .models import *
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
  
-class Createuserform(UserCreationForm):
+class createuserform(UserCreationForm):
     class Meta:
         model=User
         fields=['username','password'] 
  
-class AddQuestionform(ModelForm):
+class addQuestionform(ModelForm):
     class Meta:
-        model=QuestionModel
+        model=QuesModel
         fields="__all__"

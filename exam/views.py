@@ -1,29 +1,32 @@
 from django.shortcuts import redirect,render
 from django.contrib.auth import login,logout,authenticate
+from django.contrib.auth.decorators import login_required
+
 from .forms import *
 from .models import *
 from django.http import HttpResponse
  
 # Create your views here.
+@login_required(login_url='/login/')
 def home(request):
     if request.method == 'POST':
         print(request.POST)
-        questions=QuestionModel.objects.all()
+        questions=QuesModel.objects.all()
         score=0
         wrong=0
         correct=0
         total=0
-        for question in questions:
+        for q in questions:
             total+=1
-            print(request.POST.get(question.question))
-            print(question.ans)
+            print(request.POST.get(q.question))
+            print(q.ans)
             print()
-            if question.ans ==  request.POST.get(question.question):
-                score+=10
+            if q.ans ==  request.POST.get(q.question):
+                score+=1
                 correct+=1
             else:
                 wrong+=1
-        percent = score/(total*10) *100
+        percent = score/total *100
         context = {
             'score':score,
             'time': request.POST.get('timer'),
@@ -32,28 +35,27 @@ def home(request):
             'percent':percent,
             'total':total
         }
-        return render(request,'Quiz/result.html',context)
+        return render(request,'result.html',context)
     else:
-        questions=QuestionModel.objects.all()
+        questions=QuesModel.objects.all()
         context = {
             'questions':questions
         }
-        return render(request,'Quiz/home.html',context)
+        return render(request,'home.html',context)
  
 def addQuestion(request):    
     if request.user.is_staff:
-        form=AddQuestionform()
+        form=addQuestionform()
         if(request.method=='POST'):
-            form=AddQuestionform(request.POST)
+            form=addQuestionform(request.POST)
             if(form.is_valid()):
                 form.save()
                 return redirect('/')
         context={'form':form}
-        return render(request,'Quiz/addQuestion.html',context)
+        return render(request,'addQuestion.html',context)
     else: 
         return redirect('home') 
-
-
+ 
 def registerPage(request):
     if request.user.is_authenticated:
         return redirect('home') 
@@ -67,7 +69,7 @@ def registerPage(request):
         context={
             'form':form,
         }
-        return render(request,'Quiz/register.html',context)
+        return render(request,'register.html',context)
  
 def loginPage(request):
     if request.user.is_authenticated:
@@ -81,8 +83,8 @@ def loginPage(request):
             login(request,user)
             return redirect('/')
        context={}
-       return render(request,'Quiz/login.html',context)
+       return render(request,'login.html',context)
  
 def logoutPage(request):
     logout(request)
-    return redirect('/')
+    return redirect('/login')
